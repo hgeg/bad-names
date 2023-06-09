@@ -1,0 +1,68 @@
+name:                bad-names
+version:             0.1.1
+github:              "hgeg/bad-names"
+license:             BSD3
+author:              "Can Bulbul"
+maintainer:          "can@orkestra.co"
+copyright:           "2023 Orkestra"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description: A comprehensive list of bad names <https://github.com/hgeg/bad-names#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- text
+- warp
+- wai
+- servant
+- servant-server
+- blaze-html
+- servant-blaze
+- random
+
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+
+executables:
+  badname-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - badname
+
+tests:
+  badname-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - badname
