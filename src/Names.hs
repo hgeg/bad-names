@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, DataKinds #-}
+{-# LANGUAGE TypeOperators, OverloadedStrings, DataKinds #-}
 module Names where
 
 import           Control.Monad.IO.Class as IO
@@ -12,16 +12,22 @@ import Text.Blaze.Html5 as H
 import Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html.Renderer.Pretty (renderHtml)
 
-type API = Get '[HTML] Html
+type API = "names"                     :> Get '[HTML] Html
+      :<|> "names" :> Capture "id" Int :> Get '[HTML] Html
 
 type Name = (Int, String)
 
 server :: Server API
-server = nameHandler
+server = randomHandler :<|> idHandler
 
-nameHandler :: Handler Html
-nameHandler = do
+randomHandler :: Handler Html
+randomHandler = do
     name <- IO.liftIO getRandomName
+    return . page $ name
+
+idHandler :: Int -> Handler Html
+idHandler id = do
+    name <- IO.liftIO . getNameWithId $ id
     return . page $ name
 
 
@@ -30,8 +36,16 @@ getRandomName = do
     content <- readFile "names.txt";
     let names = lines content
     let count = length names
-    randomIndex <- randomRIO (0, count - 1)
-    return (randomIndex, names !! randomIndex)
+    randomId <- randomRIO (0, count - 1)
+    return (randomId, names !! randomId)
+
+getNameWithId :: Int -> IO Name
+getNameWithId id = do
+    content <- readFile "names.txt";
+    let names = lines content
+    case drop id names of
+        [] -> getRandomName
+        (n:_) -> return (id, n)
 
 page :: Name -> Html
 page (order, name) = docTypeHtml $ do
@@ -46,5 +60,3 @@ page (order, name) = docTypeHtml $ do
     H.div ! A.class_ "text" $ do
       H.span ! A.class_ "faded" $ toHtml ("#" ++ show order)
       toHtml (" " ++ name)
-      
-
