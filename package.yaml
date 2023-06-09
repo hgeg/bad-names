@@ -54,7 +54,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - badname
+    - bad-names
 
 tests:
   badname-test:
@@ -65,4 +65,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - badname
+    - bad-names
