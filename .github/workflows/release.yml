@@ -1,0 +1,56 @@
+name: Build and Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Extract GHC and Stack version
+      id: extract_versions
+      run: |
+        echo "::set-output name=ghc_version::$(cat package.yaml | grep -oP 'ghc-version:\s*\K[0-9.]+')"
+        echo "::set-output name=stack_version::$(cat stack.yaml | grep -oP 'resolver:\s*\K[^\s]+')" 
+
+    - name: Setup Haskell Stack
+      uses: actions/setup-haskell@v1
+      with:
+        ghc-version: ${{ steps.extract_versions.outputs.ghc_version }}
+        stack-version: ${{ steps.extract_versions.outputs.stack_version }}
+
+    - name: Build Project
+      run: |
+        stack build --system-ghc
+        
+    - name: Copy Executable
+      run: |
+        mkdir -p bin
+        cp $(stack path --local-install-root)/bin/* bin/
+
+    - name: Get version tag
+      id: get_version
+      run: |
+        echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - name: Create Release
+      id: create_release
+      uses: gh-actions/gh-release@v0.3
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - First release
+          - Add more items
+
+    - name: Upload Executable
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: bin/your_executable
+        asset_name: bad-names-${{ steps.get_version.outputs.VERSION }}
+        asset_content_type: application/octet-stream
