@@ -34,11 +34,16 @@ jobs:
 
     - name: Generate Executable
       run: |
-        stack install
+        OUTPUT=$(stack install)
+        EXECUTABLE_PATH=$(echo "$OUTPUT" | grep -oP '/home/runner/.local/bin/\K.*')
+        echo "EXECUTABLE_PATH=/home/runner/.local/bin/$EXECUTABLE_PATH" >> $GITHUB_ENV
+
+    - name: Rename Executable
+        run: mv ${{ env.EXECUTABLE_PATH }} /home/runner/.local/bin/bad-names-v${{ env.APP_VERSION }}
 
     - name: Upload Executable Artifact
       uses: actions/upload-artifact@v2
       with:
         name: bad-names-v${{ env.APP_VERSION }}
-        path: ~/.local/bin/bad-names-v${{ env.APP_VERSION }}
+        path: /home/runner/.local/bin/bad-names-v${{ env.APP_VERSION }}
 
