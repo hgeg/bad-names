@@ -39,7 +39,7 @@ jobs:
         echo "EXECUTABLE_PATH=/home/runner/.local/bin/$EXECUTABLE_PATH" >> $GITHUB_ENV
 
     - name: Rename Executable
-        run: mv ${{ env.EXECUTABLE_PATH }} /home/runner/.local/bin/bad-names-v${{ env.APP_VERSION }}
+      run: mv ${{ env.EXECUTABLE_PATH }} /home/runner/.local/bin/bad-names-v${{ env.APP_VERSION }}
 
     - name: Upload Executable Artifact
       uses: actions/upload-artifact@v2
