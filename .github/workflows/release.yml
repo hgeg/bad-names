@@ -42,6 +42,8 @@ jobs:
       with:
         tag_name: v${{ env.APP_VERSION }}
         release_name: Release v${{ env.APP_VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Executable to Release
       uses: actions/upload-release-asset@v1

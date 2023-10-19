@@ -30,7 +30,6 @@ dependencies:
 - servant-blaze
 - random
 
-
 ghc-options:
 - -Wall
 - -Wcompat
