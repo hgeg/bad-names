@@ -5,7 +5,7 @@ cabal-version: 1.12
 -- see: https://github.com/sol/hpack
 
 name:           bad-names
-version:        0.1.1
+version:        0.1.2
 description:    A comprehensive list of bad names <https://github.com/hgeg/bad-names#readme>
 homepage:       https://github.com/hgeg/bad-names#readme
 bug-reports:    https://github.com/hgeg/bad-names/issues

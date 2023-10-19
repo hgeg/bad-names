@@ -10,6 +10,8 @@ import           System.Random
 
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+
+import Text.Blaze.Html5 (Html, toHtml, docTypeHtml, (!))
 import Text.Blaze.Html.Renderer.Pretty (renderHtml)
 
 type API = "names"                     :> Get '[HTML] Html
