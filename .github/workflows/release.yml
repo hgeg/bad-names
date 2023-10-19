@@ -2,60 +2,49 @@ name: Build and Release
 
 on:
   push:
-    tags:
-      - '*'
+    paths:
+      - 'package.yaml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Extract GHC and Stack version
-      id: extract_versions
-      run: |
-        echo "::set-output name=ghc_version::$(cat package.yaml | grep -oP 'ghc-version:\s*\K[0-9.]+')"
-        echo "::set-output name=stack_version::$(cat stack.yaml | grep -oP 'resolver:\s*\K[^\s]+')" 
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Setup Haskell Stack
-      uses: actions/setup-haskell@v1
-      with:
-        ghc-version: ${{ steps.extract_versions.outputs.ghc_version }}
-        stack-version: ${{ steps.extract_versions.outputs.stack_version }}
+      run: |
+        curl -sSL https://get.haskellstack.org/ | sh
+
+    - name: Extract Version Info
+      run: |
+        APP_VERSION=$(grep "^version:" package.yaml | awk '{print $2}')
+        GHC_VERSION=$(grep "^resolver:" stack.yaml | awk -F'/' '{print $3}')
+        STACK_VERSION=$(stack --version | head -n 1 | awk '{print $2}')
+        echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
+        echo "GHC_VERSION=$GHC_VERSION" >> $GITHUB_ENV
+        echo "STACK_VERSION=$STACK_VERSION" >> $GITHUB_ENV
 
     - name: Build Project
       run: |
+        stack setup
         stack build --system-ghc
-        
-    - name: Copy Executable
-      run: |
-        mkdir -p bin
-        cp $(stack path --local-install-root)/bin/* bin/
 
-    - name: Get version tag
-      id: get_version
+    - name: Generate Executable
       run: |
-        echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        stack install
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          Changes in this Release
-          - First release
-          - Add more items
+        tag_name: v${{ env.APP_VERSION }}
+        release_name: Release v${{ env.APP_VERSION }}
 
-    - name: Upload Executable
+    - name: Upload Executable to Release
       uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: bin/your_executable
-        asset_name: bad-names-${{ steps.get_version.outputs.VERSION }}
+        asset_path: ~/.local/bin/your_executable_name
+        asset_name: your_executable_name
         asset_content_type: application/octet-stream
