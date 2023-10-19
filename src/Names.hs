@@ -8,8 +8,8 @@ import           Servant.HTML.Blaze
 
 import           System.Random
 
-import Text.Blaze.Html5 as H
-import Text.Blaze.Html5.Attributes as A
+import qualified Text.Blaze.Html5 as H
+import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html.Renderer.Pretty (renderHtml)
 
 type API = "names"                     :> Get '[HTML] Html
@@ -30,20 +30,23 @@ idHandler id = do
     name <- IO.liftIO . getNameWithId $ id
     return . page $ name
 
-
 getRandomName :: IO Name
 getRandomName = do
     content <- readFile "names.txt";
     let names = lines content
     let count = length names
     randomId <- randomRIO (0, count - 1)
-    return (randomId, names !! randomId)
+    return (randomId+1, names !! randomId)
+
+clamp :: (Int, Int) -> Int -> Int
+clamp (s,e) = min e . max s
 
 getNameWithId :: Int -> IO Name
 getNameWithId id = do
     content <- readFile "names.txt";
     let names = lines content
-    case drop id names of
+    let safeId = clamp (0, length names) (id-1)
+    case drop safeId names of
         [] -> getRandomName
         (n:_) -> return (id, n)
 
@@ -58,5 +61,5 @@ page (order, name) = docTypeHtml $ do
       "@keyframes fade-in{0%{opacity:0}100%{opacity:1}}"
   H.body $ do
     H.div ! A.class_ "text" $ do
-      H.span ! A.class_ "faded" $ toHtml ("#" ++ show order)
+      H.span ! A.class_ "faded" $ toHtml ("#" ++ show (order+1))
       toHtml (" " ++ name)
