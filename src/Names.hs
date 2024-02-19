@@ -58,10 +58,10 @@ page (order, name) = docTypeHtml $ do
     H.title "Kötü Isimler"
     H.style $ do
       "body{background:#fafafa;margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh}"
-      ".text{opacity:0;animation:fade-in .5s ease-in forwards;color:#444;text-align:center;font: bold 72px \"Helvetica Neue\",Helvetica,Arial,sans-serif}"
-      ".faded{color: #aaa;}"
+      ".text{opacity:0;animation:fade-in .5s ease-in forwards;color:#444;text-align:center;font: bold 48px "Helvetica Neue",Helvetica,Arial,sans-serif; padding: 120px}"
+      ".order{color: #aaa;}"
       "@keyframes fade-in{0%{opacity:0}100%{opacity:1}}"
   H.body $ do
     H.div ! A.class_ "text" $ do
-      H.span ! A.class_ "faded" $ toHtml ("#" ++ show (order+1))
-      toHtml (" " ++ name)
+      H.span ! A.class_ "order" $ toHtml ("#" ++ show (order+1) ++ " ")
+      H.span $ toHtml name
